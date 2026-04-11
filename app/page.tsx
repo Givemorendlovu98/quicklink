@@ -18,6 +18,7 @@ export default function Home() {
     { label: "Twitter / X", url: "https://x.com/yourhandle" },
     { label: "LinkedIn", url: "https://linkedin.com/in/username" },
     { label: "My GitHub", url: "https://github.com/yourname" },
+    { label: "My Facebook", url: "https://facebook.com/yourname" },
   ];
 
   const handleLinkClick = () => {
