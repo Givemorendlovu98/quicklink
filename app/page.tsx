@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     // We changed 'bg-gray-50' to a subtle gradient 'bg-slate-50'
-    <main className="flex min-h-screen flex-col items-center bg-slate-50 px-6 py-12 md:py-24">
+    <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-slate-50 to-blue-100 px-6 py-12 md:py-24">
       
       {/* 1. FLOATING COUNTER: Fixed to the top so it doesn't move */}
       <div className="fixed top-6 right-6 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm z-50">
