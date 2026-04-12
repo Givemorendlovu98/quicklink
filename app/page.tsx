@@ -47,9 +47,9 @@ export default function Home() {
       <div className="flex flex-col items-center w-full max-w-[600px]">
         {/* Profile Header */}
         <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center text-3xl shadow-xl border-4 border-white">
-          🚀
+          GN
         </div>
-        <h1 className="mt-6 text-3xl font-extrabold text-slate-900">Your Name</h1>
+        <h1 className="mt-6 text-3xl font-extrabold text-slate-900">Givemore </h1>
         <p className="mt-2 text-slate-500">Global Link Analytics Live ⚡️</p>
 
         {/* 3. Render Buttons with their specific counts */}
