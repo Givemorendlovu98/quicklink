@@ -2,88 +2,72 @@
 
 import { useState, useEffect } from 'react';
 import LinkButton from './components/LinkButton';
-import { supabase } from './components/supabaseClient'; // 1. Import our bridge
+import { supabase } from './components/supabaseClient';
 
 export default function Home() {
-  const [totalClicks, setTotalClicks] = useState(0);
+  // Now we store an array of link data from the database
+  const [stats, setStats] = useState<any[]>([]);
 
-  // 2. THE GLOBAL LOADER: Fetches the number from the cloud database
+  // 1. Fetch all link stats on load
   useEffect(() => {
-    async function fetchClicks() {
+    async function fetchStats() {
       const { data, error } = await supabase
-        .from('analytics')
-        .select('click_count')
-        .single(); // We only want that one row we created!
+        .from('link_stats')
+        .select('*')
+        .order('id', { ascending: true });
 
-      if (data) {
-        setTotalClicks(data.click_count);
-      }
-      if (error) console.error("Error fetching clicks:", error);
+      if (data) setStats(data);
+      if (error) console.error(error);
     }
-
-    fetchClicks();
+    fetchStats();
   }, []);
 
-  const links = [
-    { label: "My Portfolio", url: "https://yourportfolio.com" },
-    { label: "Twitter / X", url: "https://x.com/yourhandle" },
-    { label: "LinkedIn", url: "https://linkedin.com/in/username" },
-    { label: "My GitHub", url: "https://github.com/yourname" },
-  ];
+  // 2. Update the specific link in the database
+  const handleLinkClick = async (label: string) => {
+    // Find the current click count for this label
+    const linkData = stats.find(item => item.label === label);
+    if (!linkData) return;
 
-  // 3. THE GLOBAL SAVER: Updates the count in the cloud
-  const handleLinkClick = async () => {
-    // Optimistic Update: Change it on the screen immediately for speed
-    const newCount = totalClicks + 1;
-    setTotalClicks(newCount);
-    
-    // Update the cloud!
-    const { error } = await supabase
-      .from('analytics')
-      .update({ click_count: newCount })
-      .eq('id', 1); // This targets the row where id is 1
+    const newCount = linkData.clicks + 1;
 
-    if (error) console.error("Error updating database:", error);
+    // UI Update (Immediate)
+    setStats(prev => prev.map(item => 
+      item.label === label ? { ...item, clicks: newCount } : item
+    ));
+
+    // Database Update
+    await supabase
+      .from('link_stats')
+      .update({ clicks: newCount })
+      .eq('label', label);
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-slate-50 px-6 py-12 md:py-24">
-      
-      {/* 4. GLOBAL BADGE: Now showing stats from everyone! */}
-      <div className="fixed top-6 right-6 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm z-50">
-        🌎 {totalClicks} Total Clicks
-      </div>
-
+    <main className="flex min-h-screen flex-col items-center bg-slate-50 px-6 py-12">
       <div className="flex flex-col items-center w-full max-w-[600px]">
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-          <div className="relative w-28 h-28 bg-white rounded-full flex items-center justify-center text-3xl font-bold shadow-xl border-4 border-white overflow-hidden">
-             🚀
-          </div>
+        {/* Profile Header */}
+        <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center text-3xl shadow-xl border-4 border-white">
+          🚀
         </div>
+        <h1 className="mt-6 text-3xl font-extrabold text-slate-900">Your Name</h1>
+        <p className="mt-2 text-slate-500">Global Link Analytics Live ⚡️</p>
 
-        <h1 className="mt-6 text-3xl font-extrabold text-slate-900 tracking-tight">
-          Your Name
-        </h1>
-        
-        <p className="mt-2 text-slate-500 font-medium text-center">
-          Building in public • 2026 Batch 
-        </p>
-
+        {/* 3. Render Buttons with their specific counts */}
         <div className="mt-10 w-full space-y-4">
-          {links.map((link, index) => (
-            <LinkButton 
-              key={index}
-              label={link.label}
-              url={link.url}
-              onItemClick={handleLinkClick}
-            />
+          {stats.map((link) => (
+            <div key={link.id} className="relative group">
+              <LinkButton 
+                label={link.label}
+                url={link.url || "#"} 
+                onItemClick={() => handleLinkClick(link.label)}
+              />
+              {/* This is the badge showing the individual clicks */}
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                {link.clicks} clicks
+              </span>
+            </div>
           ))}
         </div>
-
-        <footer className="mt-auto pt-12 text-slate-400 text-sm text-center">
-          Data powered by Supabase ⚡️
-        </footer>
       </div>
     </main>
   );
