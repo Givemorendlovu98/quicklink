@@ -46,7 +46,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center bg-slate-50 px-6 py-12">
       <div className="flex flex-col items-center w-full max-w-[600px]">
         {/* Profile Header */}
-        <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center text-3xl shadow-xl border-4 border-white">
+        <div className="w-28 h-28 bg-blue-400 rounded-full flex items-center justify-center text-3xl shadow-xl border-4 border-white">
           GN
         </div>
         <h1 className="mt-6 text-3xl font-extrabold text-slate-900">Givemore </h1>
