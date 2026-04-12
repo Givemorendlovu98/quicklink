@@ -2,15 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import LinkButton from './components/LinkButton';
+import { supabase } from './components/supabaseClient'; // 1. Import our bridge
 
 export default function Home() {
   const [totalClicks, setTotalClicks] = useState(0);
 
+  // 2. THE GLOBAL LOADER: Fetches the number from the cloud database
   useEffect(() => {
-    const savedClicks = localStorage.getItem("savedClicks");
-    if (savedClicks) {
-      setTotalClicks(parseInt(savedClicks));
+    async function fetchClicks() {
+      const { data, error } = await supabase
+        .from('analytics')
+        .select('click_count')
+        .single(); // We only want that one row we created!
+
+      if (data) {
+        setTotalClicks(data.click_count);
+      }
+      if (error) console.error("Error fetching clicks:", error);
     }
+
+    fetchClicks();
   }, []);
 
   const links = [
@@ -18,31 +29,35 @@ export default function Home() {
     { label: "Twitter / X", url: "https://x.com/yourhandle" },
     { label: "LinkedIn", url: "https://linkedin.com/in/username" },
     { label: "My GitHub", url: "https://github.com/yourname" },
-    { label: "My Facebook", url: "https://facebook.com/yourname" },
   ];
 
-  const handleLinkClick = () => {
+  // 3. THE GLOBAL SAVER: Updates the count in the cloud
+  const handleLinkClick = async () => {
+    // Optimistic Update: Change it on the screen immediately for speed
     const newCount = totalClicks + 1;
     setTotalClicks(newCount);
-    localStorage.setItem("savedClicks", newCount.toString());
+    
+    // Update the cloud!
+    const { error } = await supabase
+      .from('analytics')
+      .update({ click_count: newCount })
+      .eq('id', 1); // This targets the row where id is 1
+
+    if (error) console.error("Error updating database:", error);
   };
 
   return (
-    // We changed 'bg-gray-50' to a subtle gradient 'bg-slate-50'
-    <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-slate-50 to-blue-100 px-6 py-12 md:py-24">
+    <main className="flex min-h-screen flex-col items-center bg-slate-50 px-6 py-12 md:py-24">
       
-      {/* 1. FLOATING COUNTER: Fixed to the top so it doesn't move */}
+      {/* 4. GLOBAL BADGE: Now showing stats from everyone! */}
       <div className="fixed top-6 right-6 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm z-50">
-        🔥 {totalClicks} Clicks
+        🌎 {totalClicks} Total Clicks
       </div>
 
-      {/* 2. PROFILE AREA */}
       <div className="flex flex-col items-center w-full max-w-[600px]">
-        {/* Animated Avatar */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
           <div className="relative w-28 h-28 bg-white rounded-full flex items-center justify-center text-3xl font-bold shadow-xl border-4 border-white overflow-hidden">
-             {/* Replace with an actual image link later! */}
              🚀
           </div>
         </div>
@@ -55,8 +70,6 @@ export default function Home() {
           Building in public • 2026 Batch 
         </p>
 
-        {/* 3. THE LINKS CONTAINER */}
-        {/* 'mt-10' adds space above, 'space-y-4' adds space between buttons */}
         <div className="mt-10 w-full space-y-4">
           {links.map((link, index) => (
             <LinkButton 
@@ -68,9 +81,8 @@ export default function Home() {
           ))}
         </div>
 
-        {/* 4. FOOTER: Gives it a professional 'Startup' feel */}
-        <footer className="mt-auto pt-12 text-slate-400 text-sm">
-          Built with ⚡️ Next.js
+        <footer className="mt-auto pt-12 text-slate-400 text-sm text-center">
+          Data powered by Supabase ⚡️
         </footer>
       </div>
     </main>
