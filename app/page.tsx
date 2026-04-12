@@ -62,7 +62,9 @@ export default function Home() {
                 onItemClick={() => handleLinkClick(link.label)}
               />
               {/* This is the badge showing the individual clicks */}
-              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* The badge: Always visible on mobile, hover-only on desktop */}
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg 
+                    opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                 {link.clicks} clicks
               </span>
             </div>
