@@ -41,6 +41,8 @@ export default function Home() {
       .update({ clicks: newCount })
       .eq('label', label);
   };
+  // This adds up all the 'clicks' values from your array
+const totalGlobalClicks = stats.reduce((acc, link) => acc + (link.clicks || 0), 0);
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-slate-50 px-6 py-12">
@@ -51,6 +53,17 @@ export default function Home() {
         </div>
         <h1 className="mt-6 text-3xl font-extrabold text-slate-900">Givemore </h1>
         <p className="mt-2 text-slate-500">Global Link Analytics Live ⚡️</p>
+         {/* --- PASTE THE TOTAL CLICKS UI CODE BELOW THIS LINE --- */}
+      <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 border border-blue-100 rounded-full">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+        </span>
+        <span className="text-sm font-bold text-blue-700 uppercase tracking-tight">
+          {totalGlobalClicks} Total Clicks
+        </span>
+      </div>
+      {/* --- END OF TOTAL CLICKS UI CODE --- */}
 
         {/* 3. Render Buttons with their specific counts */}
         <div className="mt-10 w-full space-y-4">
